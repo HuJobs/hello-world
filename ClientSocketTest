@@ -1,0 +1,57 @@
+package demo;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+public class ClientSocketTest {
+	 /*
+	  * Java Socket可实现“客户端--服务器”间的双向实时通信。java.net包中定义的两个类socket（客户端）和ServerSocket（服务端），分别用来实现双向连接的client和server端。
+	  * 步骤：
+	  * 1、用服务器的IP地址和端口号实例化Socket对象。
+	  * 2、调用connect方法，连接到服务器上。
+	  * 3、获得Socket上的流，把流封装进BufferedReader/PrintWriter的实例，以进行读写
+	  * 4、利用Socket提供的getInputStream和getOutputStream方法，通过IO流对象，向服务器发送数据流
+	  * 5、关闭打开的流和Socket。
+	  */
+	 public static void test(){
+		try {
+			Socket socket = new Socket("127.0.0.1",8888);//1、创建客户端Socket，指定服务器地址和端口 ，与服务端建立连接
+			System.out.println("客户端连接已建立，准备开始向服务端传输信息！");
+			
+			//1、输出流发送给服务端的请求信息
+			OutputStream os = socket.getOutputStream();//获取字节输出流 ，向服务器端发送信息 
+			PrintWriter pw = new PrintWriter(os);//将输出流包装成打印流 
+			pw.write("我是客户端传来的信息！"); 
+			pw.flush(); 
+			socket.shutdownOutput(); //关闭输出流 
+			
+			//2、输入流获取服务器端传回的响应信息 
+			InputStream is = socket.getInputStream(); 
+			BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+			String serverinfo = null; 
+			while((serverinfo = br.readLine())!= null){ 
+			   System.out.println("服务端传回的信息："+serverinfo); 
+			} 
+			 
+			//关闭资源 
+			br.close(); 
+			is.close(); 
+			pw.close(); 
+			os.close(); 
+			socket.close(); 
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	 }
+	 
+	 
+	 public static void main(String[] args) {
+		ClientSocketTest.test();
+	}
+}
