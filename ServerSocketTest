@@ -1,0 +1,64 @@
+package demo;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class ServerSocketTest {
+	/*
+	 * 　Java Socket可实现“客户端--服务器”间的双向实时通信。java.net包中定义的两个类socket（客户端）和ServerSocket（服务端），分别用来实现双向连接的client和server端。
+	 * 步骤：
+     * 1、用指定的端口实例化一个SeverSocket对象。服务器就可以用这个端口监听从客户端发来的连接请求。
+     * 2、调用ServerSocket的accept()方法，以在等待连接期间造成阻塞，监听连接从端口上发来的连接请求。
+     * 3、利用accept方法返回的客户端的Socket对象，进行读写IO的操作
+     * 4、关闭打开的流和Socket对象
+	 */
+	public static void test(){
+		try {
+			ServerSocket serverSocket = new ServerSocket(8888); //创建一个服务器端Socket，即ServerSocket，指定绑定的端口，并监听此端口 
+			System.out.println("服务端已建立，开始监听客户端，等待客户端连接！");
+			Socket socket = serverSocket.accept(); //调用accept()方法开始监听，等待客户端的连接 ，返回Socket，地址将其指向客户端的Socket对象
+			System.out.println("客户端的IP："+socket.getInetAddress());
+			
+			//1、输入流获取客户端的请求信息
+			InputStream is = socket.getInputStream();//获取输入流，并读取客户端信息 
+			InputStreamReader isr = new InputStreamReader(is);//读取该输入流
+			BufferedReader bfr = new BufferedReader(isr);//添加到缓冲流中
+			String clientinfo = null;
+			while((clientinfo = bfr.readLine())!= null){  //遍历读取缓冲输入流，获取客户端传来的信息
+				System.out.println("客户端传来的信息："+clientinfo);
+			}
+			socket.shutdownInput();//关闭输入流 
+			
+			//2、输出流返回客户端的响应信息
+			OutputStream os = socket.getOutputStream();//获取输出流，响应客户端的请求
+			PrintWriter pw = new PrintWriter(os);//将输出流包装成打印流 
+			pw.write("我是从服务端传来的信息！");
+			pw.flush();//刷新打印流
+			
+			//关闭资源
+			pw.close();
+			os.close();
+			bfr.close();
+			isr.close();
+			is.close();
+			socket.close();
+			serverSocket.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public static void main(String[] args) {
+		ServerSocketTest.test();
+	}
+	
+}
+
